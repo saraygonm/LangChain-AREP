@@ -184,7 +184,7 @@ prompt.to_messages()
 
 ### Ejemplo de Ejecución de la Aplicación
 
-Aquí tienes un ejemplo de cómo se ejecutaría la aplicación, en este caso, para traducir "Hello!" al francés:
+En este caso, para traducir "Hello!" al francés:
 
 **Entrada:**
 
