@@ -62,7 +62,7 @@ Estas instrucciones te permitirán:
    pip install -qU "langchain[openai]"
    ```
 
-3) **Configurarmos la Clave API de OpenAI:** Clave API de OpenAI como una variable de entorno. 
+3) **Configuramos la Clave API de OpenAI:** Clave API de OpenAI como una variable de entorno. 
 
    En la Terminal:
    ```bash
@@ -78,34 +78,128 @@ Estas instrucciones te permitirán:
        os.environ["OPENAI_API_KEY"] = getpass.getpass("Introduce tu clave API para OpenAI: ")
    ```
 
-4) **Inicializar el Modelo de Chat:**  
-   Luego, inicializa el modelo de chat utilizando LangChain:
-   ```python
-   from langchain.chat_models import init_chat_model
 
-   model = init_chat_model("gpt-4o-mini", model_provider="openai")
-   ```
+---
 
-5) **Interactuar con el Modelo:**  
-   Interactúa con el modelo pasando una lista de mensajes. Aquí tienes un ejemplo de traducir "hi!" del inglés al italiano:
-   ```python
-   from langchain_core.messages import HumanMessage, SystemMessage
+## Ejecución del Código
 
-   messages = [
-       SystemMessage("Translate the following from English into Italian"),
-       HumanMessage("hi!"),
-   ]
+### Paso 1: Configuración del Modelo de Chat
 
-   response = model.invoke(messages)
-   print(response.content)  # Salida: Ciao!
-   ```
+Primero, se configura el modelo de chat, utilizando LangChain:
 
-6) **Transmitir Respuestas:**  
-   LangChain permite recibir tokens generados en tiempo real:
-   ```python
-   for token in model.stream(messages):
-       print(token.content, end="|")
-   ```
+```python
+from langchain.chat_models import init_chat_model
+
+model = init_chat_model("gpt-4o-mini", model_provider="openai")
+```
+
+### Paso 2: Interactuar con el Modelo
+
+Se configura el modelo pasando un conjunto de mensajes. En este caso, se traduce "hi!" de inglés a italiano:
+
+```python
+from langchain_core.messages import HumanMessage, SystemMessage
+
+messages = [
+    SystemMessage("Translate the following from English into Italian"),
+    HumanMessage("hi!"),
+]
+
+response = model.invoke(messages)
+print(response.content)  # Resultado: Ciao!
+```
+
+### Paso 3: Recibir Respuestas en Tiempo Real
+
+LangChain permite que se reciban tokens conforme se generen. 
+Asi se transmite la respuesta:
+
+```python
+for token in model.stream(messages):
+    print(token.content, end="|")
+```
+
+**Resultado esperado:**
+
+```
+|C|iao|!|
+```
+
+
+Anexo funcionamiento:
+
+<p align="center">
+<img src="./img/3.png" alt="" width="700px">
+</p>
+
+
+
+### Uso de Plantillas de Instrucción
+
+#### Paso 1: Crear una Plantilla de Instrucción
+
+Las plantillas de instrucción  permiten estructurar mejor la entrada para el modelo.
+Para crear una plantilla se requieren dos variables:
+
+- **language:** El idioma al que se traducirá el texto.
+- **text:** El texto que se va a traducir.
+
+```python
+from langchain_core.prompts import ChatPromptTemplate
+
+system_template = "Translate the following from English into {language}"
+prompt_template = ChatPromptTemplate.from_messages(
+    [("system", system_template), ("user", "{text}")]
+)
+```
+
+#### Paso 2: Formatear y Aplicar la Plantilla
+
+Ahora se puede personalizar la plantilla con la entrada del usuario y pasársela al modelo 
+para su ejecución:
+
+```python
+prompt = prompt_template.invoke({"language": "Italian", "text": "hi!"})
+response = model.invoke(prompt)
+print(response.content)  # Resultado: Ciao!
+```
+
+#### Paso 3: Revisar la Plantilla
+
+Para revisar como  organizar la entrada en la plantilla, puede inspeccionarse con el siguiente
+comando:
+
+```python
+prompt.to_messages()
+```
+
+**Resultado esperado:**
+
+```python
+[
+    SystemMessage(content='Translate the following from English into Italian'),
+    HumanMessage(content='hi!')
+]
+```
+
+### Ejemplo de Ejecución de la Aplicación
+
+Aquí tienes un ejemplo de cómo se ejecutaría la aplicación, en este caso, para traducir "Hello!" al francés:
+
+**Entrada:**
+
+```python
+prompt = prompt_template.invoke({"language": "French", "text": "Hello!"})
+response = model.invoke(prompt)
+print(response.content)
+```
+
+**Resultado esperado:**
+
+```
+Bonjour!
+```
+
 
 ----
 
